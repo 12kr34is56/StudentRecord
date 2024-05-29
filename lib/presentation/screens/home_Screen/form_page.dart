@@ -17,16 +17,16 @@ class _FormPageState extends State<FormPage> {
   String? selectedGender;
   DateTime? selectedDob;
 
-  void onGenderSelected(String gender) {
-    setState(() {
-      selectedGender = gender;
-    });
+  void _onGenderSelected(String gender) {
+    context.read<StudentBloc>().add(GenderChanged(gender: gender));
   }
 
   void _onDateSelected(DateTime value) {
-    setState(() {
-      selectedDob = value;
-    });
+    context.read<StudentBloc>().add(DobChanged(dob: value));
+  }
+
+  void _onNameChanged(String name) {
+    context.read<StudentBloc>().add(NameChanged(name: name));
   }
 
   @override
@@ -55,146 +55,152 @@ class _FormPageState extends State<FormPage> {
           ),
         ],
       ),
-      body: BlocProvider(
-        create: (context) =>
-            StudentBloc(studentRepository: StudentRepository()),
-        child: BlocListener<StudentBloc, StudentState>(
-          listener: (context, state) {
-            if (state is StudentAddedSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Student Added')),
-              );
-              nameController.clear();
-              setState(() {
-                selectedGender = null;
-                selectedDob = null;
-              });
-            } else if (state is StudentFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text('Failed to add student: ${state.error}')),
-              );
-            }
-          },
-          child: ListView(
-            padding: EdgeInsets.symmetric(
-                vertical: height * 0.05, horizontal: width * 0.02),
-            children: [
-              Row(
-                children: [
-                  Column(
-                    // crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      //Name of Student
-                      Text(
-                          nameController.text.isEmpty
-                              ? "Name"
-                              : nameController.text,
+      body: BlocListener<StudentBloc, StudentState>(
+        listener: (context, state) {
+          if (state is StudentAddedSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Student Added')),
+            );
+            nameController.clear();
+          } else if (state is StudentFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to add student: ${state.error}')),
+            );
+          }
+        },
+        child: BlocBuilder<StudentBloc, StudentState>(
+          builder: (context, state) {
+            return ListView(
+              padding: EdgeInsets.symmetric(
+                vertical: height * 0.05,
+                horizontal: width * 0.02,
+              ),
+              children: [
+                Row(
+                  children: [
+                    Column(
+                      children: [
+                        //Name of Student
+                        Text(
+                          state.name.isNotEmpty ? state.name : "Name",
                           style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w500)),
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
 
-                      //Image of Student
-                      if (selectedGender == "Other" || selectedGender == null)
-                        const ImageRotation(image: "images/dotted_image.jpeg"),
-                      if (selectedGender == "Female")
-                        const ImageRotation(image: "images/girl.jpeg"),
-                      if (selectedGender == "Male")
-                        const ImageRotation(image: "images/boy.jpeg"),
+                        //Image of Student
+                        if (state.gender == "Other" || state.gender == null)
+                          const ImageRotation(image: "images/dotted_image.jpeg"),
+                        if (state.gender == "Female")
+                          const ImageRotation(image: "images/girl.jpeg"),
+                        if (state.gender == "Male")
+                          const ImageRotation(image: "images/boy.jpeg"),
 
-                      SizedBox(height: height * 0.02),
+                        SizedBox(height: height * 0.02),
 
-                      //Student DOB
-
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16.0),
-                        child: Text(
-                            "DOB  ${selectedDob != null ? "${selectedDob!.day}-${selectedDob!.month}-${selectedDob!.year}" : ""}",
+                        //Student DOB
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Text(
+                            "DOB  ${state.dob != null ? "${state.dob!.day}-${state.dob!.month}-${state.dob!.year}" : ""}",
                             style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.w500)),
-                      ),
-
-                      SizedBox(height: height * 0.02),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      SizedBox(
-                        height: height * 0.06,
-                        width: width * 0.4,
-                        child: TextField(
-                          controller: nameController,
-                          decoration: InputDecoration(
-                            hintText: "Name",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: height * 0.02),
-                      WidgetDatePicker(
-                        helpText: "Select Date",
-                        onDateSelected: _onDateSelected,
-                      ),
-                      SizedBox(height: height * 0.02),
-                      WidgetGenderDropDown(onGenderSelected: onGenderSelected),
-                      SizedBox(height: height * 0.02),
-                    ],
-                  )
-                ],
-              ),
 
-              const SizedBox(
-                height: 10,
-              ),
+                        SizedBox(height: height * 0.02),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        SizedBox(
+                          height: height * 0.06,
+                          width: width * 0.4,
+                          child: TextField(
+                            controller: nameController,
+                            onChanged: _onNameChanged,
+                            decoration: InputDecoration(
+                              hintText: "Name",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: height * 0.02),
+                        WidgetDatePicker(
+                          helpText: "Select Date",
+                          onDateSelected: _onDateSelected,
+                        ),
+                        SizedBox(height: height * 0.02),
+                        WidgetGenderDropDown(
+                          onGenderSelected: _onGenderSelected,
+                        ),
+                        SizedBox(height: height * 0.02),
+                      ],
+                    )
+                  ],
+                ),
 
-              //Submit Button
-              Center(
-                child: Container(
-                  height: 50,
-                  width: 150,
-                  decoration: BoxDecoration(
+                const SizedBox(
+                  height: 10,
+                ),
+
+                //Submit Button
+                Center(
+                  child: Container(
+                    height: 50,
+                    width: 150,
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.green),
-                  child: InkWell(
-                    onTap: () async {
-                      if (nameController.text.isNotEmpty &&
-                          selectedGender != null &&
-                          selectedDob != null) {
-                        context.read<StudentBloc>().add(AddStudentEvent(
-                              name: nameController.text,
-                              gender: selectedGender!,
-                              dob: selectedDob!,
-                            ));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Student Added')),
+                      color: Colors.green,
+                    ),
+                    child: InkWell(
+                      onTap: () async {
+                        if (state.name.isEmpty ||
+                            state.gender == null ||
+                            state.dob == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please fill in all fields'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        context.read<StudentBloc>().add(
+                          AddStudentEvent(
+                            name: state.name,
+                            gender: state.gender!,
+                            dob: state.dob!,
+                          ),
                         );
-                        nameController.clear();
-                        setState(() {
-                          selectedGender = null;
-                          selectedDob = null;
-                        });
-                      }
-                    },
-                    child: const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          "Submit",
-                          style: TextStyle(
+                      },
+                      child: const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            "Submit",
+                            style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
-                              fontWeight: FontWeight.bold),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
+
 }

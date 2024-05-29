@@ -37,11 +37,26 @@ class LoginScreen extends StatelessWidget {
                     const SizedBox(height: 10),
                     const Text("Login Form", style: TextStyle(fontSize: 20)),
                     const SizedBox(height: 10),
-                    WidgetTextField(controller: emailController, hintText: "Email"),
+                    WidgetTextField(
+                      controller: emailController,
+                      hintText: "Email",
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        return null;
+                      },
+                    ),
                     WidgetTextField(
                       obscureText: true,
                       controller: passwordController,
                       hintText: "Password",
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        return null;
+                      },
                     ),
                     ButtonBar(
                       children: [
@@ -56,6 +71,14 @@ class LoginScreen extends StatelessWidget {
                             return WidgetButton(
                               onTap: () async {
                                 if (state is! AuthLoading) {
+                                  // Validate form fields
+                                  if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Please fill in all fields')),
+                                    );
+                                    return;
+                                  }
+
                                   // Dispatch SignInEvent when the login button is pressed
                                   BlocProvider.of<AuthBloc>(context).add(
                                     SignInEvent(

@@ -32,11 +32,25 @@ class SignUpScreen extends StatelessWidget {
                   const Text("Sign Up Form", style: TextStyle(fontSize: 20)),
                   const SizedBox(height: 10),
                   WidgetTextField(
-                      controller: emailController, hintText: "Email"),
+                    controller: emailController,
+                    hintText: "Email",
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      return null;
+                    },
+                  ),
                   WidgetTextField(
                     controller: passwordController,
                     obscureText: true,
                     hintText: "Password",
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      return null;
+                    },
                   ),
                   ButtonBar(
                     children: [
@@ -52,6 +66,17 @@ class SignUpScreen extends StatelessWidget {
                           return WidgetButton(
                             onTap: () async {
                               if (state is! AuthLoading) {
+                                // Validate form fields
+                                if (emailController.text.isEmpty ||
+                                    passwordController.text.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Please fill in all fields'),
+                                    ),
+                                  );
+                                  return;
+                                }
+
                                 // Dispatch SignUpEvent when the sign-up button is pressed
                                 BlocProvider.of<AuthBloc>(context).add(
                                   SignUpEvent(
@@ -81,7 +106,7 @@ class SignUpScreen extends StatelessWidget {
                 context, VerificationScreen.routeName);
           }
         },
-        child: SizedBox(),
+        child: const SizedBox(),
       ),
     );
   }

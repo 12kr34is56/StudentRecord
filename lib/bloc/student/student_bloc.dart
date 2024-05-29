@@ -13,13 +13,24 @@ part 'student_state.dart';
 class StudentBloc extends Bloc<StudentEvent, StudentState> {
   final StudentRepository studentRepository;
 
-  StudentBloc({required this.studentRepository}) : super(StudentInitial()) {
+  StudentBloc({required this.studentRepository}) : super(const StudentInitial(name: '')) {
     on<AddStudentEvent>(_onAddStudent);
     on<FetchStudentsEvent>(_onFetchStudents);
+    on<NameChanged>((event, emit) {
+      emit(state.copyWith(name: event.name));
+    });
+
+    on<DobChanged>((event, emit) {
+      emit(state.copyWith(dob: event.dob));
+    });
+
+    on<GenderChanged>((event, emit) {
+      emit(state.copyWith(gender: event.gender));
+    });
   }
 
   Future<void> _onAddStudent(AddStudentEvent event, Emitter<StudentState> emit) async {
-    emit(StudentLoading());
+    emit(const StudentLoading());
     try {
       await studentRepository.addStudent(event.name, event.gender, event.dob);
       emit(StudentAddedSuccess());
@@ -29,7 +40,7 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
   }
 
   Future<void> _onFetchStudents(FetchStudentsEvent event, Emitter<StudentState> emit) async {
-    emit(StudentLoading());
+    emit(const StudentLoading());
     try {
       final students = await studentRepository.getStudents().first;
       emit(StudentListLoaded(students));
@@ -39,7 +50,7 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
   }
 
   Future<void> _onUpdateStudent(UpdateStudentEvent event, Emitter<StudentState> emit) async {
-    emit(StudentLoading());
+    emit(const StudentLoading());
     try {
       await studentRepository.updateStudent(event.id, event.name, event.gender, event.dob);
       emit(StudentUpdatedSuccess());
@@ -48,4 +59,7 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
       emit(StudentFailure(e.toString()));
     }
   }
+
+
+
 }
