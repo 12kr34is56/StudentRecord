@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1039893218025",
+    "project_id": "studentrecord-c1f38",
+    "storage_bucket": "studentrecord-c1f38.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1039893218025:android:ce28d215bd2e1b3c996678",
+        "android_client_info": {
+          "package_name": "krishna.com.student_record"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGZZgN7GgQ2qQfLk0oDhMMsyAHn-RN4kg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
