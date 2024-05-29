@@ -34,6 +34,8 @@ class _FormPageState extends State<FormPage> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Form Page"),
@@ -82,7 +84,7 @@ class _FormPageState extends State<FormPage> {
                       children: [
                         //Name of Student
                         Text(
-                          state.name.isNotEmpty ? state.name : "Name",
+                           "Name ${nameController.text}",
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
